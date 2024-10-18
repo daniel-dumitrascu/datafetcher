@@ -7,7 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"test/extern"
+	"test/storage/cloud"
+	"test/web/auth"
 
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/option"
@@ -22,11 +23,17 @@ func testUpdateDataHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Use OAuth2 to login to google in order to use his APIs
-	ctx := context.Background()
-	client := extern.OAuth2()
+	oauth := auth.CreateOAuth2(cloud.Google)
+	client, err := oauth.StartFlow()
+	if err != nil {
+		errorMessage := fmt.Sprintf("Unable to authorize the use of google api: %v", err)
+		http.Error(w, errorMessage, http.StatusUnauthorized)
+		return
+	}
 
 	fileID := "15Yt9IWfuiASjvv38btbelcoglLx6RnC-cXuds7lQLQg"
 
+	ctx := context.Background()
 	srv, err := drive.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		log.Fatalf("Unable to retrieve Drive client: %v", err)
@@ -46,7 +53,7 @@ func testUpdateDataHandler(w http.ResponseWriter, r *http.Request) {
 	// localFilePath := "C:\\Users\\DanielDumitrascu\\Desktop\\algo\\1\\excels\\example.xlsx"
 
 	// // Download the Excel file from Google Drive
-	// if err := DownloadFile(srv, fileID, localFilePath); err != nil {
+	// if err := downloadFile(srv, fileID, localFilePath); err != nil {
 	// 	log.Fatalf("Unable to download file: %v", err)
 	// }
 	// fmt.Println("File downloaded successfully.")
@@ -77,12 +84,31 @@ func testUpdateDataHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Endpoint was succesfully called"))
 }
 
-func RegisterHandlers() {
-	http.HandleFunc("/api/v1/testupdatedata", testUpdateDataHandler)
+func tokenHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse the query parameters from the URL
+	queryParams := r.URL.Query()
+
+	code := queryParams.Get("code")
+	if code == "" {
+		http.Error(w, "Missing 'code' query parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Store it
+	path := "token.json"
+	oauth := auth.CreateOAuth2(cloud.Google)
+	oauth.StoreToken(code, path)
+
+	fmt.Printf("Token has been stored at location: %v\n", path)
 }
 
-// DownloadFile downloads a file from Google Drive
-func DownloadFile(driveService *drive.Service, fileId string, destination string) error {
+func RegisterHandlers() {
+	http.HandleFunc("/api/v1/testupdatedata", testUpdateDataHandler)
+	http.HandleFunc("/api/v1/oauth2/token", tokenHandler)
+}
+
+// downloadFile downloads a file from Google Drive
+func downloadFile(driveService *drive.Service, fileId string, destination string) error {
 	resp, err := driveService.Files.Export(fileId, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet").Download()
 	if err != nil {
 		return err
