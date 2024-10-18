@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/exec"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -32,6 +33,12 @@ func (oauth2google OAuth2Google) StartFlow() (*http.Client, error) {
 		authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 		fmt.Printf("Go to the following link in your browser then type the "+
 			"authorization code: \n%v\n", authURL)
+
+		if openBrowserErr := openBrowser(authURL); openBrowserErr != nil {
+			errorMessage := fmt.Sprintf("OAuth2 flow was disrupted by: %v", openBrowserErr)
+			return nil, errors.New(errorMessage)
+		}
+
 		return nil, err
 	}
 	return config.Client(context.Background(), tok), nil
@@ -60,6 +67,16 @@ func (oauth2google OAuth2Google) StoreToken(authCode string, path string) error 
 	defer f.Close()
 	json.NewEncoder(f).Encode(tok)
 	return nil
+}
+
+func openBrowser(url string) error {
+	var cmd string
+	var args []string
+
+	cmd = "rundll32"
+	args = append(args, "url.dll,FileProtocolHandler", url)
+
+	return exec.Command(cmd, args...).Start()
 }
 
 func getTokenFromFile(file string) (*oauth2.Token, error) {
