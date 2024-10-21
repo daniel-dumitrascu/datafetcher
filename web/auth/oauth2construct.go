@@ -1,9 +1,9 @@
 package auth
 
 import (
+	"datafetcher/storage/cloud"
 	"fmt"
 	"log"
-	"test/storage/cloud"
 )
 
 func CreateOAuth2(cloudID int) OAuth2 {

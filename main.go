@@ -1,12 +1,17 @@
 package main
 
 import (
-	"net/http"
-
-	"test/web"
+	"log"
 )
 
 func main() {
-	web.RegisterHandlers()
-	http.ListenAndServe(":6788", nil)
+	log.Println("Starting the server...")
+
+	if err := Init(); err != nil {
+		log.Fatalf("Error when initiating the server: %v\n", err)
+	}
+
+	log.Println("Server has started successfully")
+
+	Run()
 }
