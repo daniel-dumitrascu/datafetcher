@@ -2,7 +2,7 @@ package web
 
 import (
 	"context"
-	"datafetcher/storage/cloud"
+	"datafetcher/extern/cloud"
 	"datafetcher/web/auth"
 	"fmt"
 	"io"

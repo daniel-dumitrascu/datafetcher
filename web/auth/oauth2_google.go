@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -31,8 +32,7 @@ func (oauth2google OAuth2Google) StartFlow() (*http.Client, error) {
 	tok, err := getTokenFromFile(tokFile)
 	if err != nil {
 		authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-		fmt.Printf("Go to the following link in your browser then type the "+
-			"authorization code: \n%v\n", authURL)
+		log.Println("Opening the browser and start the OAuth2 flow.")
 
 		if openBrowserErr := openBrowser(authURL); openBrowserErr != nil {
 			errorMessage := fmt.Sprintf("OAuth2 flow was disrupted by: %v", openBrowserErr)

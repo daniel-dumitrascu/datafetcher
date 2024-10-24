@@ -1,12 +1,14 @@
 package main
 
 import (
+	"datafetcher/jobs"
 	"datafetcher/web"
 	"net/http"
 )
 
-func Init() error {
+func Init(path string) error {
 	web.RegisterHandlers()
+	jobs.StartJobs(path)
 	return nil
 }
 

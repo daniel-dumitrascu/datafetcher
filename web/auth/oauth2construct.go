@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"datafetcher/storage/cloud"
+	"datafetcher/extern/cloud"
 	"fmt"
 	"log"
 )
