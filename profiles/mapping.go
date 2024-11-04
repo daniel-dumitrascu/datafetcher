@@ -2,7 +2,8 @@ package profiles
 
 type MapData struct {
 	Filename       string `json:"-"`
-	FileID         string `json:"fileid"`
+	MapID          string `json:"mapid"`
+	ExternFile     string `json:"externfile"`
 	Datatype       string `json:"datatype"`
 	Fetchinterval  string `json:"fetchinterval"`
 	LastUpdateDate string `json:"lastUpdateDate"`

@@ -44,9 +44,9 @@ func updateJobs(path string) error {
 			continue
 		}
 
-		if len(mapdata.FileID) == 0 {
+		if len(mapdata.MapID) == 0 {
 			// generate a new ID and add it to the mapdata
-			mapdata.FileID = utils.GenerateUUID()
+			mapdata.MapID = utils.GenerateUUID()
 
 			rawData, err := json.MarshalIndent(mapdata, "", "  ")
 			if err != nil {
@@ -63,7 +63,7 @@ func updateJobs(path string) error {
 		}
 
 		log.Printf("[INFO] Map %s loaded sucesfully\n", filenames[i])
-		mappings[mapdata.FileID] = mapdata
+		mappings[mapdata.MapID] = mapdata
 	}
 
 	return nil
