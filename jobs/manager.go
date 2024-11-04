@@ -2,13 +2,13 @@ package jobs
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
 
 	"datafetcher/profiles"
+	"datafetcher/utils"
 )
 
 func StartJobs(path string) {
@@ -28,8 +28,8 @@ func updateJobs(path string) error {
 		return err
 	}
 
-	mappings := make([]profiles.MapData, 0)
-	log.Println("Loading mappings...")
+	mappings := make(map[string]profiles.MapData, 0)
+	log.Printf("[INFO] Loading mappings from %s\n", path)
 	for i := 0; i < len(filenames); i++ {
 		rawjson, err := os.ReadFile(filepath.Join(path, filenames[i]))
 		if err != nil {
@@ -44,10 +44,27 @@ func updateJobs(path string) error {
 			continue
 		}
 
-		mappings = append(mappings, mapdata)
-	}
+		if len(mapdata.FileID) == 0 {
+			// generate a new ID and add it to the mapdata
+			mapdata.FileID = utils.GenerateUUID()
 
-	fmt.Println(mappings)
+			rawData, err := json.MarshalIndent(mapdata, "", "  ")
+			if err != nil {
+				log.Printf("[ERROR] Error marshaling JSON: %s", err)
+				continue
+			}
+
+			// write it back to the file
+			err = os.WriteFile(filepath.Join(path, filenames[i]), rawData, 0644)
+			if err != nil {
+				log.Printf("[ERROR] Error writing JSON on file %s: %s", filenames[i], err)
+				continue
+			}
+		}
+
+		log.Printf("[INFO] Map %s loaded sucesfully\n", filenames[i])
+		mappings[mapdata.FileID] = mapdata
+	}
 
 	return nil
 }
