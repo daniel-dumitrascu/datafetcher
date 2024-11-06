@@ -20,9 +20,6 @@ func Init(path string) error {
 		return errors.New(errorMessage)
 	}
 
-	//TODO New method that gets a client when needed
-	//oauth.GetClient()
-
 	jobs.StartJobs(path)
 	return nil
 }

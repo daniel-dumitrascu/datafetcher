@@ -6,19 +6,25 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"datafetcher/profiles"
 	"datafetcher/utils"
 )
 
 func StartJobs(path string) {
+	mapticker := time.NewTicker(2 * time.Second)
+	jobEnv(mapticker, updateJobs, path)
+}
 
-	//TODO create the ticker
+func jobEnv(mapticker *time.Ticker, updateJobsTask func(path string) error, path string) {
+	for t := range mapticker.C {
+		log.Printf("Mapping task has started at %v\n", t)
 
-	err := updateJobs(path)
-	if err != nil {
-		log.Printf("[ERROR] There was an issue when updating the jobs: %s\n", err)
-		//TODO will retry at the next tick
+		err := updateJobsTask(path)
+		if err != nil {
+			log.Printf("[ERROR] There was an issue when updating the jobs: %s\n", err)
+		}
 	}
 }
 
