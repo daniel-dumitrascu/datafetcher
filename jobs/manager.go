@@ -29,7 +29,7 @@ func updateJobs(path string) error {
 	}
 
 	mappings := make(map[string]profiles.MapData, 0)
-	log.Printf("[INFO] Loading mappings from %s\n", path)
+	log.Printf("Loading mappings from %s\n", path)
 	for i := 0; i < len(filenames); i++ {
 		rawjson, err := os.ReadFile(filepath.Join(path, filenames[i]))
 		if err != nil {
@@ -62,7 +62,7 @@ func updateJobs(path string) error {
 			}
 		}
 
-		log.Printf("[INFO] Map %s loaded sucesfully\n", filenames[i])
+		log.Printf("Map %s loaded sucesfully\n", filenames[i])
 		mappings[mapdata.MapID] = mapdata
 	}
 

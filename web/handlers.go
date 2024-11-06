@@ -22,18 +22,11 @@ func testUpdateDataHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Use OAuth2 to login to google in order to use his APIs
-	oauth := auth.CreateOAuth2(cloud.Google)
-	client, err := oauth.StartFlow()
-	if err != nil {
-		errorMessage := fmt.Sprintf("Unable to authorize the use of google api: %v", err)
-		http.Error(w, errorMessage, http.StatusUnauthorized)
-		return
-	}
-
 	fileID := "15Yt9IWfuiASjvv38btbelcoglLx6RnC-cXuds7lQLQg"
 
 	ctx := context.Background()
+	oauth := auth.CreateOAuth2(cloud.Google)
+	client := oauth.GetClient()
 	srv, err := drive.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		log.Fatalf("Unable to retrieve Drive client: %v", err)
@@ -99,7 +92,7 @@ func tokenHandler(w http.ResponseWriter, r *http.Request) {
 	oauth := auth.CreateOAuth2(cloud.Google)
 	oauth.StoreToken(code, path)
 
-	fmt.Printf("Token has been stored at location: %v\n", path)
+	log.Printf("Token has been stored at location: %v\n", path)
 }
 
 func RegisterHandlers() {
